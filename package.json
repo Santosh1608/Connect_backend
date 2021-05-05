@@ -1,0 +1,20 @@
+{
+  "name": "connect",
+  "version": "1.0.0",
+  "description": "\"Connect to people\"",
+  "main": "index.js",
+  "scripts": {
+    "start":"node index.js",
+    "backend":"nodemon index.js"
+  },
+  "author": "santhosh",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "dotenv": "^8.5.1",
+    "express": "^4.17.1",
+    "express-validator": "^6.10.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.7"
+  }
+}
