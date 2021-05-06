@@ -8,6 +8,13 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
+    avatar: {
+      url: {
+        type: String,
+        default: "http://www.gravatar.com/avatar/?d=mp",
+      },
+      id: String,
+    },
     email: {
       type: String,
       trim: true,
@@ -49,6 +56,7 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.createToken = function () {
   const token = jwt.sign({ _id: this._id }, process.env.SECRET);
+  return token;
 };
 
 userSchema.methods.comparePasswords = async function (password) {

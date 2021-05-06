@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/User");
+const upload = require("../cloudinary");
+const cloudinary = require("cloudinary");
 const { body, validationResult } = require("express-validator");
 router.post("/signin", async (req, res) => {
   try {
@@ -14,6 +16,7 @@ router.post("/signin", async (req, res) => {
       throw new Error();
     }
     const token = user.createToken();
+    console.log(token);
     user.password = undefined;
     res.send({ user, token });
   } catch (e) {
@@ -24,6 +27,7 @@ router.post("/signin", async (req, res) => {
 });
 router.post(
   "/signup",
+  upload.single("photo"),
   [
     body("email", "enter correct email").isEmail(),
     body(
@@ -41,10 +45,17 @@ router.post(
       }
       const user = await User(req.body);
       user.following.push(user._id);
+      if (req.file) {
+        user.avatar.url = req.file.path;
+        user.avatar.id = req.file.filename;
+      }
       await user.save();
+      user.password = undefined;
       const token = user.createToken();
       res.send({ user, token });
     } catch (e) {
+      if (req.file.filename)
+        await cloudinary.uploader.destroy(req.file.filename);
       if (e.code == 11000 && e.name == "MongoError") {
         return res.status(400).send({
           error: "Email is already exists",
