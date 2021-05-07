@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const Post = require("./Post");
+const Comment = require("./Comment");
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -51,6 +53,25 @@ userSchema.pre("save", async function (next) {
     next();
   } catch {
     throw new Error("Something went wrong with password please try again");
+  }
+});
+
+userSchema.pre("remove", async function (next) {
+  try {
+    console.log("_________POSTS_________");
+    const posts = await Post.find({ post_by: this._id });
+    console.log(posts);
+    console.log("__________COMMENTS________");
+    const commentIds = posts.map((post) => post.comments).flat();
+    console.log(commentIds);
+    const deleted = await Comment.deleteMany({
+      _id: { $in: commentIds },
+    });
+    console.log(deleted);
+    await Post.deleteMany({ post_by: this._id });
+  } catch (e) {
+    console.log(e);
+    throw new Error("Couldn't able to delete user");
   }
 });
 

@@ -2,6 +2,7 @@ const router = require("express").Router();
 const User = require("../models/User");
 const cloudinary = require("cloudinary");
 const { isSignedIn } = require("../middleware/auth");
+const Post = require("../models/Post");
 router.delete("/removeAvatar", isSignedIn, async (req, res) => {
   try {
     if (req.user.avatar.id) {
@@ -99,6 +100,46 @@ router.post("/unfollow/:following_id", isSignedIn, async (req, res) => {
   } catch (e) {
     res.status(400).send({
       error: "Could not able to unfollow",
+    });
+  }
+});
+
+router.get("/users/find/:name", isSignedIn, async (req, res) => {
+  try {
+    const users = await User.find({
+      name: { $regex: `${req.params.name}`, $options: "i" },
+    });
+    res.send(users);
+  } catch (e) {
+    res.status(400).send({
+      error: "Failed to find users",
+    });
+  }
+});
+
+router.get("/user/:userId", isSignedIn, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.send({ error: "No user found" });
+    }
+    const userPosts = await Post.find({ post_by: req.params.userId });
+    res.send({ user, userPosts });
+  } catch (e) {
+    res.status(400).send({
+      error: "Failed to retrive User",
+    });
+  }
+});
+
+router.delete("/user/remove", isSignedIn, async (req, res) => {
+  try {
+    await req.user.remove();
+    res.send({ message: "Account deleted" });
+  } catch (e) {
+    console.log(e);
+    res.status(400).send({
+      error: "Failed to remove User",
     });
   }
 });

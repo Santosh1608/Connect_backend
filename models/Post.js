@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Comment = require("./Comment");
 const postSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -24,6 +25,12 @@ const postSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+});
+
+postSchema.pre("remove", async function (next) {
+  await Comment.deleteMany({ _id: { $in: this.comments } });
+  console.log("DONE DELETING");
+  next();
 });
 
 module.exports = mongoose.model("Post", postSchema);

@@ -55,14 +55,17 @@ router.post("/post/comment/:postId", isSignedIn, async (req, res) => {
     comment.comment_by = req.user._id;
     await comment.save();
     let post = await Post.findById(req.params.postId);
+    if (!post) {
+      return res.status(404).send({ error: "Post not found" });
+    }
     post.comments.push(comment._id);
     await post.save();
     res.send(post);
   } catch (e) {
+    console.log(e);
     res.status(400).send({
       error: "Failed to comment",
     });
-    GET;
   }
 });
 //UPDATE COMMENT
@@ -152,6 +155,37 @@ router.post("/post/unlike/:postId", isSignedIn, async (req, res) => {
   } catch (e) {
     res.status(400).send({
       error: "Failed to unlike",
+    });
+  }
+});
+
+router.get("/post/:postId", isSignedIn, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.postId).populate([
+      {
+        path: "comments",
+        model: "Comment",
+        populate: {
+          path: "comment_by",
+          model: "User",
+        },
+      },
+      {
+        path: "likes",
+        model: "User",
+      },
+      {
+        path: "post_by",
+        model: "User",
+      },
+    ]);
+    if (!post) {
+      return res.status(404).send({ error: "Post not found" });
+    }
+    res.send(post);
+  } catch (e) {
+    res.status(400).send({
+      error: "Failed to get Post",
     });
   }
 });
