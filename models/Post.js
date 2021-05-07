@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+var mongoosePaginate = require("mongoose-paginate");
 const Comment = require("./Comment");
 const postSchema = new mongoose.Schema({
   title: {
@@ -26,7 +27,7 @@ const postSchema = new mongoose.Schema({
     },
   ],
 });
-
+postSchema.plugin(mongoosePaginate);
 postSchema.pre("remove", async function (next) {
   await Comment.deleteMany({ _id: { $in: this.comments } });
   console.log("DONE DELETING");

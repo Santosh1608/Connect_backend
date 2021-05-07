@@ -158,7 +158,7 @@ router.post("/post/unlike/:postId", isSignedIn, async (req, res) => {
     });
   }
 });
-
+//GET Particular POST
 router.get("/post/:postId", isSignedIn, async (req, res) => {
   try {
     const post = await Post.findById(req.params.postId).populate([
@@ -190,4 +190,20 @@ router.get("/post/:postId", isSignedIn, async (req, res) => {
   }
 });
 
+//GET all foloowing POSTS
+router.get("/posts", isSignedIn, async (req, res) => {
+  try {
+    console.log(req.query);
+    const posts = await Post.paginate(
+      { post_by: { $in: req.user.following } },
+      { page: parseInt(req.query.page), limit: parseInt(req.query.limit) }
+    );
+    res.send(posts);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send({
+      error: "Failed to get Posts",
+    });
+  }
+});
 module.exports = router;
