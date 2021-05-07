@@ -58,12 +58,8 @@ userSchema.pre("save", async function (next) {
 
 userSchema.pre("remove", async function (next) {
   try {
-    console.log("_________POSTS_________");
     const posts = await Post.find({ post_by: this._id });
-    console.log(posts);
-    console.log("__________COMMENTS________");
     const commentIds = posts.map((post) => post.comments).flat();
-    console.log(commentIds);
     const deleted = await Comment.deleteMany({
       _id: { $in: commentIds },
     });
