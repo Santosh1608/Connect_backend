@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const User = require("../models/User");
+const cloudinary = require("cloudinary");
 const { isSignedIn } = require("../middleware/auth");
 router.delete("/removeAvatar", isSignedIn, async (req, res) => {
   try {
@@ -14,6 +15,7 @@ router.delete("/removeAvatar", isSignedIn, async (req, res) => {
       user: req.user,
     });
   } catch (e) {
+    console.log(e);
     res.status(400).send({
       error: "Failed to delete post",
     });
@@ -50,13 +52,9 @@ router.post("/follow/:following_id", isSignedIn, async (req, res) => {
     if (!following) {
       throw new Error();
     }
-    console.log(req.user);
-    console.log("FOLLOWING_______");
-    console.log(following);
     const isFollowing = req.user.following.find((following_id) => {
       return following_id.toString() == following._id;
     });
-    console.log(isFollowing);
     if (isFollowing) {
       return res.send({ error: "Already following" });
     }
@@ -66,9 +64,41 @@ router.post("/follow/:following_id", isSignedIn, async (req, res) => {
     await following.save();
     res.send({ user });
   } catch (e) {
-    console.log(e);
     res.status(400).send({
       error: "Could not able to follow",
+    });
+  }
+});
+
+router.post("/unfollow/:following_id", isSignedIn, async (req, res) => {
+  try {
+    const following = await User.findById(req.params.following_id);
+    if (!following) {
+      throw new Error();
+    }
+    if (following._id.toString() == req.user._id) {
+      return res.status(400).send({ error: "U can't unfollow ur self" });
+    }
+    const isFollowing = req.user.following.find((following_id) => {
+      console.log(following_id, following._id);
+      return following_id.toString() == following._id;
+    });
+    if (isFollowing) {
+      req.user.following = req.user.following.filter(
+        (following_id) => following_id.toString() != following.id
+      );
+      const user = await req.user.save();
+      following.followers = following.followers.filter(
+        (follower_id) => follower_id.toString() != req.user._id
+      );
+      await following.save();
+      res.send({ user });
+    } else {
+      res.status(400).send({ error: "U are not following" });
+    }
+  } catch (e) {
+    res.status(400).send({
+      error: "Could not able to unfollow",
     });
   }
 });

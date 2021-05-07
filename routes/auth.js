@@ -54,8 +54,7 @@ router.post(
       const token = user.createToken();
       res.send({ user, token });
     } catch (e) {
-      if (req.file.filename)
-        await cloudinary.uploader.destroy(req.file.filename);
+      if (req.file.filename) cloudinary.uploader.destroy(req.file.filename);
       if (e.code == 11000 && e.name == "MongoError") {
         return res.status(400).send({
           error: "Email is already exists",
