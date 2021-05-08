@@ -190,13 +190,17 @@ router.get("/post/:postId", isSignedIn, async (req, res) => {
   }
 });
 
-//GET all foloowing POSTS
+//GET all following POSTS
 router.get("/posts", isSignedIn, async (req, res) => {
   try {
     console.log(req.query);
     const posts = await Post.paginate(
       { post_by: { $in: req.user.following } },
-      { page: parseInt(req.query.page), limit: parseInt(req.query.limit) }
+      {
+        page: parseInt(req.query.page),
+        limit: parseInt(req.query.limit),
+        populate: "post_by",
+      }
     );
     res.send(posts);
   } catch (e) {
