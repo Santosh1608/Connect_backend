@@ -152,5 +152,60 @@ router.delete("/user/remove", isSignedIn, async (req, res) => {
     });
   }
 });
+router.get("/user/following/:userId", isSignedIn, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).populate([
+      {
+        path: "following",
+        model: "User",
+      },
+    ]);
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+    const isFollowing = req.user.following.find((following_id) => {
+      return following_id.toString() == user._id;
+    });
+    if (!isFollowing) {
+      return res.status.send({
+        error: "U must follow to view following people",
+      });
+    }
+    //REMOVE FIRST ELEMENT
+    user.following.shift();
+    res.send(user);
+  } catch (e) {
+    res.status(400).send({
+      error: "Failed to get following users",
+    });
+  }
+});
+router.get("/user/followers/:userId", isSignedIn, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).populate([
+      {
+        path: "followers",
+        model: "User",
+      },
+    ]);
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+    const isFollowing = req.user.following.find((following_id) => {
+      return following_id.toString() == user._id;
+    });
+    if (!isFollowing) {
+      return res.status.send({
+        error: "U must follow to view follower people",
+      });
+    }
+    res.send(user);
+  } catch (e) {
+    res.status(400).send({
+      error: "Failed to get follower users",
+    });
+  }
+});
 
 module.exports = router;
