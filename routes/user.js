@@ -63,6 +63,7 @@ router.post("/follow/:following_id", isSignedIn, async (req, res) => {
     const user = await req.user.save();
     following.followers.push(user._id);
     await following.save();
+    user.password = undefined;
     res.send({ user });
   } catch (e) {
     res.status(400).send({
@@ -123,11 +124,19 @@ router.get("/user/:userId", isSignedIn, async (req, res) => {
     if (!user) {
       return res.send({ error: "No user found" });
     }
-    const userPosts = await Post.find({ post_by: req.params.userId });
-    res.send({ user, userPosts });
+    const isFollowing = req.user.following.find((following_id) => {
+      return following_id.toString() == user._id;
+    });
+
+    let userPosts = await Post.find({ post_by: req.params.userId });
+    console.log(userPosts.length);
+    if (!isFollowing) {
+      return res.send({ user, userPosts: [], postsLength: userPosts.length });
+    }
+    res.send({ user, userPosts, postsLength: userPosts.length });
   } catch (e) {
     res.status(400).send({
-      error: "Failed to retrive User",
+      error: "Failed to retrive posts",
     });
   }
 });
