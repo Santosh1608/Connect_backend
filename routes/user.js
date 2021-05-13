@@ -34,7 +34,7 @@ router.put("/update/user", isSignedIn, async (req, res) => {
     }
     await user.save();
     user.password = undefined;
-    res.send({ user });
+    res.send(user);
   } catch (e) {
     if (e.code == 11000 && e.name == "MongoError") {
       return res.status(400).send({
