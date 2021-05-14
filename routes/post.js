@@ -83,6 +83,7 @@ router.put("/post/comment/:postId/:commentId", isSignedIn, async (req, res) => {
     let post = await Post.findById(req.params.postId);
     res.send(post);
   } catch (e) {
+    console.log(e);
     res.status(400).send({
       error: "Failed to update comment",
     });
@@ -96,6 +97,7 @@ router.delete(
     try {
       const comment = await Comment.findById(req.params.commentId);
       if (!comment) {
+        console.log(comment);
         return res.status(400).send({ error: "No comment found" });
       }
       if (comment.comment_by.toString() != req.user._id) {
@@ -107,8 +109,11 @@ router.delete(
         (commentId) => commentId.toString() != req.params.commentId
       );
       await post.save();
-      res.send(post);
+      //SEND COMMENT ID
+      console.log(req.params.commentId);
+      res.send(req.params.commentId);
     } catch (e) {
+      console.log(e);
       res.status(400).send({
         error: "Failed to delete comment",
       });
