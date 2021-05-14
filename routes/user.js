@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const cloudinary = require("cloudinary");
+const upload = require("../cloudinary");
 const { isSignedIn } = require("../middleware/auth");
 const Post = require("../models/Post");
 router.delete("/removeAvatar", isSignedIn, async (req, res) => {
@@ -207,5 +208,36 @@ router.get("/user/followers/:userId", isSignedIn, async (req, res) => {
     });
   }
 });
-
+//UPDATE DP
+router.put(
+  "/updateProfile/user",
+  isSignedIn,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      let user = await User.findById(req.user._id);
+      let deleteImage = user.avatar.id || false;
+      if (req.file) {
+        user.avatar.url = req.file.path;
+        user.avatar.id = req.file.filename;
+      } else {
+        user.avatar.url = "http://www.gravatar.com/avatar/?d=mp";
+        user.avatar.id = undefined;
+      }
+      await user.save();
+      res.send(user);
+      try {
+        if (deleteImage) await cloudinary.uploader.destroy(deleteImage);
+      } catch {
+        console.log(
+          `ERROR IN DELETING UPDATED IMAGE IN CLOUD OF IMAGE ID ${deleteImage}`
+        );
+      }
+    } catch (e) {
+      res.status(400).send({
+        error: "Cannot Update Profile Pic",
+      });
+    }
+  }
+);
 module.exports = router;
