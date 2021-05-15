@@ -203,6 +203,7 @@ router.get("/posts", isSignedIn, async (req, res) => {
       { post_by: { $in: req.user.following } },
       {
         page: parseInt(req.query.page),
+        sort: { _id: -1 },
         limit: parseInt(req.query.limit),
         populate: "post_by",
       }
