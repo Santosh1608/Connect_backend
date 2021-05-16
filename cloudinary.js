@@ -9,8 +9,8 @@ cloudinary.config({
 const storage = new cloudinaryStorage.CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    allowed_formats: ["jpg", "png", "jpeg"],
-    transformation: [{ width: 400, height: 400, crop: "limit" }],
+    allowed_formats: ["jpg", "png", "jpeg", "svg"],
+    transformation: [{ width: 400, height: 800, crop: "limit" }],
   },
 });
 const parser = multer({ storage: storage });

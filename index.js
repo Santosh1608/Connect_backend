@@ -8,14 +8,19 @@ app.use(express.json());
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/post");
 const userRoutes = require("./routes/user");
-
+const path = require("path");
 const PORT = process.env.PORT | 8080;
-app.get("/", (req, res) => {
-  res.send("CONNECT");
-});
 app.use("/api", authRoutes);
 app.use("/api", postRoutes);
 app.use("/api", userRoutes);
+//Server static assets in prod
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static("../frontend/build"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend/build", "index.html"));
+  });
+}
 
 app.listen(PORT, (req, res) => {
   console.log(`Listening on PORT ${PORT}`);
