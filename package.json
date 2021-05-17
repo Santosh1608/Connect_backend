@@ -1,0 +1,26 @@
+{
+  "name": "connect",
+  "version": "1.0.0",
+  "description": "\"Connect to people\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "backend": "nodemon index.js",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
+  },
+  "author": "santhosh",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cloudinary": "^1.25.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.5.1",
+    "express": "^4.17.1",
+    "express-validator": "^6.10.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.7",
+    "mongoose-paginate": "^5.0.3",
+    "multer": "^1.4.2",
+    "multer-storage-cloudinary": "^4.0.0"
+  }
+}
