@@ -9,6 +9,7 @@ const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/post");
 const userRoutes = require("./routes/user");
 const path = require("path");
+<<<<<<< HEAD
 const PORT = process.env.PORT || 8080;
 app.use(authRoutes);
 app.use(postRoutes);
